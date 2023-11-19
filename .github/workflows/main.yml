@@ -1,0 +1,34 @@
+name: Generate BLS Tenax data
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: "10 15 * * *" # Run workflow everyday 
+
+jobs:
+  get_cpi:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Setup Python Version
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9 
+          
+      - name: Install dependencies
+        run: pip3 install -r requirements.txt
+    
+      - name: Fetch latest data
+        run: python3 get_data.py
+        
+      - id: get-date
+        run: echo "{name}={value}" >> $GITHUB_OUTPUT
+        
+
+
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "bot: update data for ${{ steps.get-date.outputs.value }}"
